@@ -6,7 +6,7 @@
 /*   By: amathias </var/spool/mail/amathias>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/05 16:49:46 by amathias          #+#    #+#             */
-/*   Updated: 2017/11/05 21:13:40 by amathias         ###   ########.fr       */
+/*   Updated: 2017/11/05 22:03:17 by amathias         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,21 +49,25 @@ void	get_sockaddr(t_env *e, const char *addr)
 	e->addr = result;
 }
 
-void	ping_host(t_env *e, const char *addr)
+void	ping_host(t_env *e)
 {
-	struct icmphdr header;
-	int		sock;
+	t_packet		packet;
+	int				sock;
+	int				counter;
 
-	if (addr == NULL)
-		return ;
+	counter = 0;
 	sock = X(-1, socket(PF_INET, SOCK_RAW, IPPROTO_ICMP), "socket");
 	e->socket = sock;
-	memset(&header, 0, sizeof(struct icmphdr));
-	header.type = ICMP_ECHO;
-	header.code = 0;
-	header.checksum = checksum((uint16_t*)&header, sizeof(struct icmphdr));
-	//printf("%s\n", e->addr->ai_canonname);
-	X(-1, sendto(e->socket, &header, sizeof(struct icmphdr), 0,
+	memset(&packet, 0, sizeof(t_packet));
+	packet.header.type = ICMP_ECHO;
+	packet.header.code = 0;
+	packet.header.un.echo.id = getpid();
+	packet.header.un.echo.sequence = counter++;
+	packet.header.checksum = checksum((uint16_t*)&packet, sizeof(t_packet));
+	gettimeofday (&packet.payload.send_at, NULL);
+	for (int i = 0; i < 40; i++)
+		packet.payload.padding[i] = 10 + i;
+	X(-1, sendto(e->socket, &packet, sizeof(t_packet), 0,
 		e->addr->ai_addr, e->addr->ai_addrlen), "sendto");
 }
 
@@ -88,7 +92,7 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 	get_sockaddr(&e, e.hostname);
-	ping_host(&e, e.hostname);
+	ping_host(&e);
 	freeaddrinfo(e.addr);
 	return 0;
 }

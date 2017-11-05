@@ -6,7 +6,7 @@
 /*   By: amathias </var/spool/mail/amathias>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/05 16:50:28 by amathias          #+#    #+#             */
-/*   Updated: 2017/11/05 20:32:43 by amathias         ###   ########.fr       */
+/*   Updated: 2017/11/05 21:59:13 by amathias         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@
 
 # include <stdint.h>
 # include <unistd.h>
+#include <sys/time.h>
+
 # include "libft/libft.h"
 
 # define XV(err,res,str) (x_void(err,res,str,__FILE__))
@@ -32,6 +34,20 @@ typedef struct				s_env
 	int						socket;
 	struct addrinfo			*addr;
 }							t_env;
+
+typedef struct				s_packet
+{
+	struct icmphdr			header;
+	union
+	{
+		uint8_t				data[56];
+		struct {
+			struct timeval	send_at;
+			uint8_t			padding[40];
+		};
+
+	} payload;
+}							t_packet;
 
 uint16_t					checksum(uint16_t *data, int length);
 
