@@ -15,6 +15,7 @@ SRC =	main.c			\
 		debug.c			\
 		get_opt.c		\
 		display.c		\
+		utils.c			\
 
 OBJ = $(SRC:.c=.o)
 NAME = ft_ping

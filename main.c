@@ -6,7 +6,7 @@
 /*   By: amathias </var/spool/mail/amathias>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/05 16:49:46 by amathias          #+#    #+#             */
-/*   Updated: 2017/11/06 17:33:35 by amathias         ###   ########.fr       */
+/*   Updated: 2017/11/06 21:16:49 by amathias         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,54 +49,39 @@ void	get_sockaddr(t_env *e, const char *addr)
 	e->addr = result;
 }
 
-double	get_time_elapsed(struct timeval *t1, struct timeval *t2)
-{
-
-	double time_ms1 = (t1->tv_sec) * 1000 + (t1->tv_usec) / 1000;
-	double time_ms2 = (t2->tv_sec) * 1000 + (t2->tv_usec) / 1000;
-
-
-	return (time_ms2 - time_ms1);
-}
-
-uint16_t	swap_byte16_t(uint16_t val)
-{
-	return ((val << 8) | (val >> 8));
-}
-
 void	ping_connect(t_env *e)
 {
 	e->socket = X(-1, socket(PF_INET, SOCK_RAW, IPPROTO_ICMP), "socket");
 	//X(-1, setsockopt(sock, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)), "setsockopt");
 }
 
-void	ping_send(t_env *e)
+void	ping_send(t_env *e, struct timeval *send_time, uint16_t sequence)
 {
 	t_packet		packet;
 
 	ft_memset(&packet, 0, sizeof(t_packet));
 	packet.icmp.icmp_type = (uint8_t)ICMP_ECHO;
 	packet.icmp.icmp_code = (uint8_t)0;
-
 	packet.icmp.icmp_id = swap_byte16_t((uint16_t)getpid());
-	packet.icmp.icmp_seq = swap_byte16_t((uint16_t)++e->counter);
-
-	//gettimeofday (&packet.payload.send_at, NULL);
+	packet.icmp.icmp_seq = swap_byte16_t((uint16_t)sequence);
 	for (int i = 0; i < 36; i++)
 		packet.data[i] = 10 + i;
 	packet.icmp.icmp_cksum = checksum((uint16_t*)&packet, sizeof(t_packet));
 	X(-1, sendto(e->socket, &packet, sizeof(t_packet), 0,
 				e->addr->ai_addr, e->addr->ai_addrlen), "sendto");
-	hexdump(&packet, sizeof(t_packet));
+	e->sent++;
+	gettimeofday (send_time, NULL);
 }
 
-void	ping_receive(t_env *e)
+int		ping_receive(t_env *e, struct timeval send_time, uint16_t sequence)
 {
+	struct timeval	received_time;
 	t_rpacket		received;
 	struct msghdr	msg_header;
 	struct iovec	iovec;
 	char			control[64];
 	int				byte_recv;
+	double			time_elapsed;
 
 	ft_memset(&msg_header, 0, sizeof(struct msghdr));
 	ft_memset(&iovec, 0, sizeof(struct iovec));
@@ -110,48 +95,67 @@ void	ping_receive(t_env *e)
 	msg_header.msg_control = &control;
 	msg_header.msg_controllen = sizeof(char) * 64;
 	msg_header.msg_flags = 0;
-	if ((byte_recv = recvmsg(e->socket, &msg_header, 0)))
+	if (e->has_timeout)
 	{
-		char * temp = msg_header.msg_iov[0].iov_base;//The obtained data
-		temp[byte_recv] = '\0';//Add at the end of the end for data
-		printf("\n");
-		hexdump(&received.icmp, 64);
-		printf("received pid: %d|%d\n", getpid(), received.icmp.icmp_id);
-		printf("sequence: %hu\n", received.icmp.icmp_seq);
-		double elap = 0.0f;
-		//gettimeofday (&received.payload.send_at, NULL);
-		//double elap = get_time_elapsed(&packet.payload.send_at,
-		//				&received.payload.send_at);
-		//printf("elap: %f\n", elap);
-		display_response(e, byte_recv, received.icmp.icmp_seq, (double)elap);
-	} else {
-		printf("not recvmsg\n");
+		e->has_timeout = 0;
+		alarm(0);
+		return (1);
 	}
+	if ((byte_recv = recvmsg(e->socket, &msg_header, MSG_DONTWAIT)))
+	{
+		if (swap_byte16_t(received.icmp.icmp_id) == getpid())
+		{
+			e->received++;
+			gettimeofday (&received_time, NULL);
+			alarm(0);
+			ft_sleep(1);
+			time_elapsed = get_time_elapsed(&send_time, &received_time);
+			e->sum += time_elapsed;
+			e->sum_square += time_elapsed * time_elapsed;
+			e->ping_min = MIN(e->ping_min, time_elapsed);
+			e->ping_max = MAX(e->ping_max, time_elapsed);
+			display_response(e, byte_recv - sizeof(struct iphdr),
+				sequence,
+				//swap_byte16_t(received.icmp.icmp_seq),
+				time_elapsed);
+			return (1);
+		}
+	}
+	return (0);
 }
 
 void	ping_host(t_env *e)
 {
+	struct timeval send_time;
 
+	gettimeofday (&e->start_time, NULL);
 	ping_connect(e);
-	ping_send(e);
-	ping_receive(e);
+	for (int i = 0; i < e->flag.counter; i++)
+	{
+		ping_send(e, &send_time, (uint16_t)i + 1);
+		alarm(1);
+		while (!ping_receive(e, send_time, i + 1))
+			;
+	}
 }
 
 int main(int argc, char *argv[])
 {
-	t_env e;
-
-	ft_memset(&e, 0, sizeof(t_env));
-	get_opt(&e, argc, argv);
-	printf("flag.help: %d\nflag.verbose:%d\n", e.flag.help, e.flag.verbose);
+	ft_memset(&g_env, 0, sizeof(t_env));
+	g_env.ping_min = 1000.0;
+	get_opt(&g_env, argc, argv);
+	g_env.flag.counter = 10;
 	if (getuid() != 0)
 	{
 		fprintf(stderr, "Command need to be run as root\n");
 		exit(1);
 	}
-	get_sockaddr(&e, e.hostname);
-	display_header_info(&e);
-	ping_host(&e);
-	freeaddrinfo(e.addr);
+	get_sockaddr(&g_env, g_env.hostname);
+	display_header_info(&g_env);
+	signal(SIGALRM, sig_handler);
+	signal(SIGINT, sig_handler);
+	ping_host(&g_env);
+	display_footer(&g_env);
+	freeaddrinfo(g_env.addr);
 	return 0;
 }
