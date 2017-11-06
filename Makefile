@@ -6,13 +6,15 @@
 #    By: amathias <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/12/03 11:09:29 by amathias          #+#    #+#              #
-#    Updated: 2017/11/05 20:32:58 by amathias         ###   ########.fr        #
+#    Updated: 2017/11/06 12:20:37 by amathias         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 SRC =	main.c			\
 		checksum.c		\
 		debug.c			\
+		get_opt.c		\
+		display.c		\
 
 OBJ = $(SRC:.c=.o)
 NAME = ft_ping
