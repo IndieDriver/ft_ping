@@ -6,26 +6,26 @@
 /*   By: amathias </var/spool/mail/amathias>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/05 16:50:28 by amathias          #+#    #+#             */
-/*   Updated: 2017/11/08 14:51:43 by amathias         ###   ########.fr       */
+/*   Updated: 2017/11/08 17:28:57 by amathias         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef FT_PING_H
 # define FT_PING_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <netdb.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <netinet/ip_icmp.h>
-#include <netinet/ip.h>
+# include <stdio.h>
+# include <stdlib.h>
+# include <netdb.h>
+# include <arpa/inet.h>
+# include <netinet/in.h>
+# include <netinet/ip_icmp.h>
+# include <netinet/ip.h>
 
 # include <stdint.h>
 # include <unistd.h>
-#include <sys/time.h>
-#include <signal.h>
-#include <math.h>
+# include <sys/time.h>
+# include <signal.h>
+# include <math.h>
 
 # include "libft/libft.h"
 
@@ -43,6 +43,7 @@ typedef struct				s_env
 	struct {
 		int					help;
 		int					verbose;
+		int					ttl;
 		int					counter;
 	}	flag;
 	int						has_timeout;

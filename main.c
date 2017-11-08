@@ -6,7 +6,7 @@
 /*   By: amathias </var/spool/mail/amathias>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/05 16:49:46 by amathias          #+#    #+#             */
-/*   Updated: 2017/11/08 16:09:55 by amathias         ###   ########.fr       */
+/*   Updated: 2017/11/08 17:38:23 by amathias         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,15 @@ void	get_sockaddr(t_env *e, const char *addr)
 
 void	ping_connect(t_env *e)
 {
+	int res;
 	e->socket = X(-1, socket(PF_INET, SOCK_RAW, IPPROTO_ICMP), "socket");
+	res = setsockopt(e->socket, IPPROTO_IP, IP_TTL, &e->flag.ttl,
+			sizeof(e->flag.ttl));
+	if (res == -1)
+	{
+		fprintf(stderr, "Invalid TTL %d\n", e->flag.ttl);
+		exit(1);
+	}
 }
 
 void	ping_send(t_env *e, struct timeval *send_time, uint16_t sequence)
@@ -128,15 +136,22 @@ int		ping_receive(t_env *e, struct timeval send_time, uint16_t sequence)
 
 void	ping_host(t_env *e)
 {
+	int sequence;
 	struct timeval send_time;
 
+	sequence = 0;
 	gettimeofday (&e->start_time, NULL);
 	ping_connect(e);
-	for (int i = 0; i < e->flag.counter; i++)
+	while (1)
 	{
-		ping_send(e, &send_time, (uint16_t)i + 1);
+		if (e->flag.counter != -1 && sequence >= e->flag.counter)
+		{
+			break ;
+		}
+		sequence++;
+		ping_send(e, &send_time, (uint16_t)sequence);
 		alarm(1);
-		while (!ping_receive(e, send_time, i + 1))
+		while (!ping_receive(e, send_time, sequence))
 			;
 	}
 }
@@ -145,8 +160,9 @@ int main(int argc, char *argv[])
 {
 	ft_memset(&g_env, 0, sizeof(t_env));
 	g_env.ping_min = 1000.0;
+	g_env.flag.ttl = 64;
+	g_env.flag.counter = -1;
 	get_opt(&g_env, argc, argv);
-	g_env.flag.counter = 10;
 	if (getuid() != 0)
 	{
 		fprintf(stderr, "Command need to be run as root\n");
