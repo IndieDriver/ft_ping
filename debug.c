@@ -6,7 +6,7 @@
 /*   By: amathias </var/spool/mail/amathias>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/05 17:32:03 by amathias          #+#    #+#             */
-/*   Updated: 2017/11/06 13:40:41 by amathias         ###   ########.fr       */
+/*   Updated: 2017/11/08 18:11:40 by amathias         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "ft_ping.h"
+#include "ft_traceroute.h"
 
 int		x_int(int err, int res, char *str, char *file)
 {

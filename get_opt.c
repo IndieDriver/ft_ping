@@ -6,22 +6,17 @@
 /*   By: amathias </var/spool/mail/amathias>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/06 10:21:03 by amathias          #+#    #+#             */
-/*   Updated: 2017/11/08 17:57:55 by amathias         ###   ########.fr       */
+/*   Updated: 2017/11/08 18:14:21 by amathias         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_ping.h"
+#include "ft_traceroute.h"
 
 void	print_help()
 {
-	printf("./ft_ping <destination>\n"
+	printf("./ft_traceroute <destination>\n"
 		"Flags:\n"
 		"  -h: print help\n"
-		"  -v: verbose mode\n"
-		"  -n: numeric mode\n"
-		"  -t ttl: set ttl\n"
-		"  -c count: set count\n"
-		"  -W timeout: set packet timeout in second\n"
 		);
 	exit(0);
 }
@@ -51,21 +46,7 @@ void	get_opt(t_env *e, int argc, char **argv)
 				while (*++argv[i])
 				{
 					switch (*argv[i]) {
-						case 'v' : e->flag.verbose = 1; break;
 						case 'h' : print_help(); break;
-						case 'n' : e->flag.numeric_out = 1; break;
-						case 't' : get_number(&e->flag.ttl,
-										i, argv[i], argv);
-								   next = 1;
-								   break;
-						case 'c' : get_number(&e->flag.counter,
-										i, argv[i], argv);
-								   next = 1;
-								   break;
-						case 'W' : get_number(&e->flag.timeout,
-										i, argv[i], argv);
-								   next = 1;
-								   break;
 						default :
 							printf ("Bad switch %c, ignored.\n",*argv[i]);
 					}
@@ -81,7 +62,7 @@ void	get_opt(t_env *e, int argc, char **argv)
 	}
 	if (e->hostname == NULL)
 	{
-		fprintf(stderr, "./ping <destination>\n");
+		fprintf(stderr, "./ft_traceroute <destination>\n");
 		exit(1);
 	}
 	if (e->flag.counter != -1 && e->flag.counter < 0)

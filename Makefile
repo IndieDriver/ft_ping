@@ -6,7 +6,7 @@
 #    By: amathias <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2015/12/03 11:09:29 by amathias          #+#    #+#              #
-#    Updated: 2017/11/06 12:20:37 by amathias         ###   ########.fr        #
+#    Updated: 2017/11/08 18:04:31 by amathias         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,7 +18,7 @@ SRC =	main.c			\
 		utils.c			\
 
 OBJ = $(SRC:.c=.o)
-NAME = ft_ping
+NAME = ft_traceroute
 CC = clang
 RM = rm -f
 CFLAGS = -Wall -Werror -Wextra -pedantic -g -fsanitize=undefined

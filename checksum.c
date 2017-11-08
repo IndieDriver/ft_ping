@@ -6,11 +6,11 @@
 /*   By: amathias </var/spool/mail/amathias>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/05 20:02:22 by amathias          #+#    #+#             */
-/*   Updated: 2017/11/05 20:32:25 by amathias         ###   ########.fr       */
+/*   Updated: 2017/11/08 18:11:17 by amathias         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_ping.h"
+#include "ft_traceroute.h"
 
 uint16_t	checksum(uint16_t *data, int length)
 {
