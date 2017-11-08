@@ -6,7 +6,7 @@
 /*   By: amathias </var/spool/mail/amathias>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/05 16:49:46 by amathias          #+#    #+#             */
-/*   Updated: 2017/11/06 21:16:49 by amathias         ###   ########.fr       */
+/*   Updated: 2017/11/08 16:09:55 by amathias         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ void	get_sockaddr(t_env *e, const char *addr)
 	ft_memset(&hints, 0, sizeof(struct addrinfo));
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_RAW;
-	hints.ai_flags = AI_PASSIVE;
+	hints.ai_flags = AI_PASSIVE | AI_CANONNAME;
 	hints.ai_protocol = IPPROTO_ICMP;
 	hints.ai_canonname = NULL;
 	hints.ai_addr = NULL;
@@ -52,12 +52,12 @@ void	get_sockaddr(t_env *e, const char *addr)
 void	ping_connect(t_env *e)
 {
 	e->socket = X(-1, socket(PF_INET, SOCK_RAW, IPPROTO_ICMP), "socket");
-	//X(-1, setsockopt(sock, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)), "setsockopt");
 }
 
 void	ping_send(t_env *e, struct timeval *send_time, uint16_t sequence)
 {
 	t_packet		packet;
+	int				res;
 
 	ft_memset(&packet, 0, sizeof(t_packet));
 	packet.icmp.icmp_type = (uint8_t)ICMP_ECHO;
@@ -67,8 +67,8 @@ void	ping_send(t_env *e, struct timeval *send_time, uint16_t sequence)
 	for (int i = 0; i < 36; i++)
 		packet.data[i] = 10 + i;
 	packet.icmp.icmp_cksum = checksum((uint16_t*)&packet, sizeof(t_packet));
-	X(-1, sendto(e->socket, &packet, sizeof(t_packet), 0,
-				e->addr->ai_addr, e->addr->ai_addrlen), "sendto");
+	res = sendto(e->socket, &packet, sizeof(t_packet), 0,
+			e->addr->ai_addr, e->addr->ai_addrlen);
 	e->sent++;
 	gettimeofday (send_time, NULL);
 }
@@ -97,6 +97,8 @@ int		ping_receive(t_env *e, struct timeval send_time, uint16_t sequence)
 	msg_header.msg_flags = 0;
 	if (e->has_timeout)
 	{
+		if (e->flag.verbose)
+			printf("timeout\n");
 		e->has_timeout = 0;
 		alarm(0);
 		return (1);

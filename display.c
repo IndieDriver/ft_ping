@@ -6,15 +6,20 @@
 /*   By: amathias </var/spool/mail/amathias>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/06 14:44:37 by amathias          #+#    #+#             */
-/*   Updated: 2017/11/06 21:17:42 by amathias         ###   ########.fr       */
+/*   Updated: 2017/11/08 16:21:12 by amathias         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_ping.h"
 
-void	display_header_info(t_env *env)
+void	display_header_info(t_env *e)
 {
-	printf("PING %s (%s): %lu(%lu) bytes of data\n", env->hostname, env->hostname,
+	char ip[INET_ADDRSTRLEN];
+
+	inet_ntop(e->addr->ai_family,
+			&((struct sockaddr_in *)e->addr->ai_addr)->sin_addr, ip, sizeof(ip));
+
+	printf("PING %s (%s) %lu(%lu) bytes of data.\n", e->hostname, ip,
 			sizeof(t_rpacket) - sizeof(struct icmp), sizeof(t_rpacket));
 }
 
@@ -24,8 +29,16 @@ void	display_response(t_env *e, int bytes_receive, int seq, double duration)
 
 	inet_ntop(e->addr->ai_family,
 			&((struct sockaddr_in *)e->addr->ai_addr)->sin_addr, ip, sizeof(ip));
-	printf("%u bytes from %s: icmp_seq=%d ttl=%d time=%.3lf ms\n",
-			bytes_receive, ip, seq, 64, duration);
+	if (ft_strcmp(ip, e->hostname) == 0)
+	{
+		printf("%u bytes from %s: icmp_seq=%d ttl=%d time=%.3lf ms\n",
+				bytes_receive, ip, seq, 64, duration);
+	}
+	else
+	{
+		printf("%u bytes from %s (%s): icmp_seq=%d ttl=%d time=%.3lf ms\n",
+				bytes_receive, e->hostname, ip, seq, 64, duration);
+	}
 }
 
 void	display_footer(t_env *e)
@@ -38,8 +51,8 @@ void	display_footer(t_env *e)
 	lost = e->sent != 0
 		? 100 - ((e->received * 100) / e->sent) : 0;
 	gettimeofday(&current_time, NULL);
-	printf("-- %s ping statistics ---\n", e->hostname);
-	printf("%u packets transmitted, %u received, %.2f%% packet loss, time %.0fms\n",
+	printf("\n--- %s ping statistics ---\n", e->hostname);
+	printf("%u packets transmitted, %u received, %.0f%% packet loss, time %.0fms\n",
 			e->sent, e->received, lost,
 			get_time_elapsed(&e->start_time, &current_time));
 
