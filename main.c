@@ -6,11 +6,11 @@
 /*   By: amathias </var/spool/mail/amathias>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/05 16:49:46 by amathias          #+#    #+#             */
-/*   Updated: 2017/11/08 18:10:43 by amathias         ###   ########.fr       */
+/*   Updated: 2017/11/08 17:55:12 by amathias         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_traceroute.h"
+#include "ft_ping.h"
 
 void	get_sockaddr(t_env *e, const char *addr)
 {
@@ -164,6 +164,7 @@ int main(int argc, char *argv[])
 	g_env.flag.counter = -1;
 	g_env.flag.timeout = 1;
 	get_opt(&g_env, argc, argv);
+	printf("numeric_out: %d\n", g_env.flag.numeric_out);
 	if (getuid() != 0)
 	{
 		fprintf(stderr, "Command need to be run as root\n");

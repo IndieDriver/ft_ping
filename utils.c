@@ -6,11 +6,11 @@
 /*   By: amathias </var/spool/mail/amathias>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/06 18:40:42 by amathias          #+#    #+#             */
-/*   Updated: 2017/11/08 18:12:22 by amathias         ###   ########.fr       */
+/*   Updated: 2017/11/08 16:19:01 by amathias         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_traceroute.h"
+#include "ft_ping.h"
 
 double		get_time_elapsed(struct timeval *t1, struct timeval *t2)
 {

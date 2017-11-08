@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_traceroute.h                                    :+:      :+:    :+:   */
+/*   ft_ping.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amathias <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: amathias </var/spool/mail/amathias>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/11/08 18:06:39 by amathias          #+#    #+#             */
-/*   Updated: 2017/11/08 18:06:54 by amathias         ###   ########.fr       */
+/*   Created: 2017/11/05 16:50:28 by amathias          #+#    #+#             */
+/*   Updated: 2017/11/08 17:55:39 by amathias         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef FT_TRACEROUTE_H
-# define FT_TRACEROUTE_H
+#ifndef FT_PING_H
+# define FT_PING_H
 
 # include <stdio.h>
 # include <stdlib.h>

@@ -35,7 +35,7 @@
 *.i*86
 *.x86_64
 *.hex
-ft_traceroute
+ft_ping
 
 # Debug files
 *.dSYM/
