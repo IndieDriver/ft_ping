@@ -6,7 +6,7 @@
 /*   By: amathias </var/spool/mail/amathias>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/06 14:44:37 by amathias          #+#    #+#             */
-/*   Updated: 2017/11/08 17:41:42 by amathias         ###   ########.fr       */
+/*   Updated: 2017/11/08 17:47:02 by amathias         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ void	display_response(t_env *e, int bytes_receive, int seq, double duration)
 
 	inet_ntop(e->addr->ai_family,
 			&((struct sockaddr_in *)e->addr->ai_addr)->sin_addr, ip, sizeof(ip));
-	if (ft_strcmp(ip, e->hostname) == 0)
+	if (ft_strcmp(ip, e->hostname) == 0 || e->flag.numeric_out)
 	{
 		printf("%u bytes from %s: icmp_seq=%d ttl=%d time=%.3lf ms\n",
 				bytes_receive, ip, seq, e->flag.ttl, duration);

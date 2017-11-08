@@ -6,7 +6,7 @@
 /*   By: amathias </var/spool/mail/amathias>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/05 16:49:46 by amathias          #+#    #+#             */
-/*   Updated: 2017/11/08 17:38:23 by amathias         ###   ########.fr       */
+/*   Updated: 2017/11/08 17:55:12 by amathias         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,7 +150,7 @@ void	ping_host(t_env *e)
 		}
 		sequence++;
 		ping_send(e, &send_time, (uint16_t)sequence);
-		alarm(1);
+		alarm(e->flag.timeout);
 		while (!ping_receive(e, send_time, sequence))
 			;
 	}
@@ -162,7 +162,9 @@ int main(int argc, char *argv[])
 	g_env.ping_min = 1000.0;
 	g_env.flag.ttl = 64;
 	g_env.flag.counter = -1;
+	g_env.flag.timeout = 1;
 	get_opt(&g_env, argc, argv);
+	printf("numeric_out: %d\n", g_env.flag.numeric_out);
 	if (getuid() != 0)
 	{
 		fprintf(stderr, "Command need to be run as root\n");
