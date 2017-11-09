@@ -6,7 +6,7 @@
 /*   By: amathias </var/spool/mail/amathias>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/05 16:49:46 by amathias          #+#    #+#             */
-/*   Updated: 2017/11/08 17:55:12 by amathias         ###   ########.fr       */
+/*   Updated: 2017/11/09 10:32:47 by amathias         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,12 +35,8 @@ void	get_sockaddr(t_env *e, const char *addr)
 		sfd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
 		if (sfd == -1)
 			continue;
-		if (connect(sfd, rp->ai_addr, rp->ai_addrlen) == 0)
-		{
-			close(sfd);
-			break;
-		}
 		close(sfd);
+		break ;
 	}
 	if (rp == NULL) {
 		fprintf(stderr, "Could not bind\n");
@@ -106,7 +102,7 @@ int		ping_receive(t_env *e, struct timeval send_time, uint16_t sequence)
 	if (e->has_timeout)
 	{
 		if (e->flag.verbose)
-			printf("timeout\n");
+			display_timeout(sequence);
 		e->has_timeout = 0;
 		alarm(0);
 		return (1);
@@ -164,7 +160,6 @@ int main(int argc, char *argv[])
 	g_env.flag.counter = -1;
 	g_env.flag.timeout = 1;
 	get_opt(&g_env, argc, argv);
-	printf("numeric_out: %d\n", g_env.flag.numeric_out);
 	if (getuid() != 0)
 	{
 		fprintf(stderr, "Command need to be run as root\n");

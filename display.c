@@ -6,7 +6,7 @@
 /*   By: amathias </var/spool/mail/amathias>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/06 14:44:37 by amathias          #+#    #+#             */
-/*   Updated: 2017/11/08 17:47:02 by amathias         ###   ########.fr       */
+/*   Updated: 2017/11/09 10:31:57 by amathias         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,12 @@ void	display_response(t_env *e, int bytes_receive, int seq, double duration)
 		printf("%u bytes from %s (%s): icmp_seq=%d ttl=%d time=%.3lf ms\n",
 				bytes_receive, e->hostname, ip, seq, e->flag.ttl, duration);
 	}
+}
+
+void	display_timeout(int seq)
+{
+	printf("Timeout (icmp_seq=%d)\n",
+			seq);
 }
 
 void	display_footer(t_env *e)
