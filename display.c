@@ -6,7 +6,7 @@
 /*   By: amathias </var/spool/mail/amathias>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/06 14:44:37 by amathias          #+#    #+#             */
-/*   Updated: 2017/11/09 10:31:57 by amathias         ###   ########.fr       */
+/*   Updated: 2017/11/09 14:42:01 by amathias         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,15 +30,23 @@ void	display_response(t_env *e, int bytes_receive, int seq, double duration)
 	inet_ntop(e->addr->ai_family,
 			&((struct sockaddr_in *)e->addr->ai_addr)->sin_addr, ip, sizeof(ip));
 	if (ft_strcmp(ip, e->hostname) == 0 || e->flag.numeric_out)
-	{
-		printf("%u bytes from %s: icmp_seq=%d ttl=%d time=%.3lf ms\n",
-				bytes_receive, ip, seq, e->flag.ttl, duration);
-	}
+		printf("%u bytes from %s", bytes_receive, ip);
 	else
-	{
-		printf("%u bytes from %s (%s): icmp_seq=%d ttl=%d time=%.3lf ms\n",
-				bytes_receive, e->hostname, ip, seq, e->flag.ttl, duration);
-	}
+		printf("%u bytes from %s (%s)", bytes_receive, e->hostname, ip);
+	printf(": icmp_seq=%d ttl=%d time=%.3lf ms\n", seq, e->flag.ttl, duration);
+}
+
+void	display_verbose(t_env *e, int bytes_receive, int type, int code)
+{
+	char ip[INET_ADDRSTRLEN];
+
+	inet_ntop(e->addr->ai_family,
+			&((struct sockaddr_in *)e->addr->ai_addr)->sin_addr, ip, sizeof(ip));
+	if (ft_strcmp(ip, e->hostname) == 0 || e->flag.numeric_out)
+		printf("%u bytes from %s", bytes_receive, ip);
+	else
+		printf("%u bytes from %s (%s)", bytes_receive, e->hostname, ip);
+	printf(": type=%d code=%d\n", type, code);
 }
 
 void	display_timeout(int seq)
@@ -69,5 +77,6 @@ void	display_footer(t_env *e)
 		printf("rtt min/avg/max/mdev = %.3f/%.3f/%.3f/%.3f ms\n",
 				e->ping_min, average, e->ping_max, mdev);
 
+	close(e->socket);
 	exit(0);
 }

@@ -6,7 +6,7 @@
 /*   By: amathias </var/spool/mail/amathias>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/05 16:50:28 by amathias          #+#    #+#             */
-/*   Updated: 2017/11/09 10:29:48 by amathias         ###   ########.fr       */
+/*   Updated: 2017/11/09 16:01:34 by amathias         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,6 +84,8 @@ void						get_opt(t_env *e, int argc, char **argv);
 void						display_header_info(t_env *env);
 void						display_response(t_env *e, int bytes_receive,
 								int seq, double duration);
+void						display_verbose(t_env *e, int bytes_receive,
+								int type, int code);
 void						display_timeout(int seq);
 void						display_footer(t_env *env);
 
@@ -93,5 +95,7 @@ double						get_time_elapsed(struct timeval *t1,
 								struct timeval *t2);
 
 void						sig_handler(int sig);
+int							is_same_host(struct sockaddr_in *addr1,
+								struct sockaddr_in *addr2);
 
 #endif

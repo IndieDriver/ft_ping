@@ -6,7 +6,7 @@
 /*   By: amathias </var/spool/mail/amathias>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/05 16:49:46 by amathias          #+#    #+#             */
-/*   Updated: 2017/11/09 10:32:47 by amathias         ###   ########.fr       */
+/*   Updated: 2017/11/09 16:13:59 by amathias         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,10 @@ void	get_sockaddr(t_env *e, const char *addr)
 	for (rp = result; rp != NULL; rp = rp->ai_next) {
 		sfd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
 		if (sfd == -1)
+		{
+			printf("invalid sfd\n");
 			continue;
+		}
 		close(sfd);
 		break ;
 	}
@@ -79,21 +82,22 @@ void	ping_send(t_env *e, struct timeval *send_time, uint16_t sequence)
 
 int		ping_receive(t_env *e, struct timeval send_time, uint16_t sequence)
 {
-	struct timeval	received_time;
-	t_rpacket		received;
-	struct msghdr	msg_header;
-	struct iovec	iovec;
-	char			control[64];
-	int				byte_recv;
-	double			time_elapsed;
+	struct sockaddr_storage	sender;
+	struct timeval			received_time;
+	t_rpacket				received;
+	struct msghdr			msg_header;
+	struct iovec			iovec;
+	char					control[64];
+	int						byte_recv;
+	double					time_elapsed;
 
 	ft_memset(&msg_header, 0, sizeof(struct msghdr));
 	ft_memset(&iovec, 0, sizeof(struct iovec));
 	ft_memset(&received, 0, sizeof(t_rpacket));
 	iovec.iov_base = &received;
 	iovec.iov_len = sizeof(t_rpacket);
-	msg_header.msg_name = e->addr->ai_addr;
-	msg_header.msg_namelen = e->addr->ai_addrlen;
+	msg_header.msg_name = &sender;
+	msg_header.msg_namelen = sizeof(struct sockaddr_storage);
 	msg_header.msg_iov = &iovec;
 	msg_header.msg_iovlen = 1;
 	msg_header.msg_control = &control;
@@ -101,16 +105,25 @@ int		ping_receive(t_env *e, struct timeval send_time, uint16_t sequence)
 	msg_header.msg_flags = 0;
 	if (e->has_timeout)
 	{
-		if (e->flag.verbose)
-			display_timeout(sequence);
+		//if (e->flag.verbose)
+			//display_timeout(sequence);
 		e->has_timeout = 0;
 		alarm(0);
 		return (1);
 	}
 	if ((byte_recv = recvmsg(e->socket, &msg_header, MSG_DONTWAIT)))
 	{
-		if (swap_byte16_t(received.icmp.icmp_id) == getpid())
+		if (swap_byte16_t(received.icmp.icmp_id) == getpid() && received.icmp.icmp_type != (uint16_t)ICMP_ECHO)
 		{
+			/*
+			struct sockaddr_in *test = msg_header.msg_name;
+			char ip[INET_ADDRSTRLEN];
+
+			inet_ntop(test->sin_family,
+					&(test->sin_addr), ip, sizeof(ip));
+			printf("ip: %s\n", ip); */
+			if (!is_same_host(msg_header.msg_name, (struct sockaddr_in*)e->addr->ai_addr))
+				return (0);
 			e->received++;
 			gettimeofday (&received_time, NULL);
 			alarm(0);
@@ -120,10 +133,31 @@ int		ping_receive(t_env *e, struct timeval send_time, uint16_t sequence)
 			e->sum_square += time_elapsed * time_elapsed;
 			e->ping_min = MIN(e->ping_min, time_elapsed);
 			e->ping_max = MAX(e->ping_max, time_elapsed);
-			display_response(e, byte_recv - sizeof(struct iphdr),
-				sequence,
-				//swap_byte16_t(received.icmp.icmp_seq),
-				time_elapsed);
+			if (e->flag.verbose)
+			{
+				display_verbose(e, byte_recv - sizeof(struct iphdr),
+				received.icmp.icmp_type,
+				received.icmp.icmp_code);
+			}
+			else
+			{
+				display_response(e, byte_recv - sizeof(struct iphdr),
+					sequence,
+					time_elapsed);
+
+			}
+			return (1);
+		}
+		else if (received.icmp.icmp_type != ICMP_ECHOREPLY)
+		{
+			if (e->flag.verbose)
+			{
+				display_verbose(e, byte_recv - sizeof(struct iphdr),
+				received.icmp.icmp_type,
+				received.icmp.icmp_code);
+			}
+			alarm(0);
+			ft_sleep(1);
 			return (1);
 		}
 	}
