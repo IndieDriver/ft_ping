@@ -6,7 +6,7 @@
 /*   By: amathias </var/spool/mail/amathias>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/05 16:49:46 by amathias          #+#    #+#             */
-/*   Updated: 2017/11/10 15:13:55 by amathias         ###   ########.fr       */
+/*   Updated: 2017/11/10 16:33:40 by amathias         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ void	ping_send(t_env *e, struct timeval *send_time, uint16_t sequence, int ttl)
 	ft_memset(&packet, 0, sizeof(t_packet));
 	packet.icmp.icmp_type = (uint8_t)ICMP_ECHO;
 	packet.icmp.icmp_code = (uint8_t)0;
-	packet.icmp.icmp_id = swap_byte16_t((uint16_t)getpid());
+	packet.icmp.icmp_id = e->pid_be;
 	packet.icmp.icmp_seq = swap_byte16_t((uint16_t)sequence);
 	for (int i = 0; i < 36; i++)
 		packet.data[i] = 10 + i;
@@ -129,9 +129,9 @@ int		ping_receive(t_env *e, struct timeval send_time, int sequence)
 			return (1);
 		}
 	}
-	if ((byte_recv = recvmsg(e->socket, &msg_header, MSG_DONTWAIT)))
+	if ((byte_recv = recvmsg(e->socket, &msg_header, MSG_DONTWAIT)) > 0)
 	{
-		if (swap_byte16_t(received.icmp.icmp_id) == getpid())
+		if (received.icmp.icmp_id == e->pid_be)
 		{
 			if (received.icmp.icmp_type == ICMP_ECHO)
 				return (0);
@@ -214,6 +214,7 @@ int main(int argc, char *argv[])
 	}
 	get_opt(&g_env, argc, argv);
 	get_sockaddr(&g_env, g_env.hostname);
+	g_env.pid_be = swap_byte16_t(getpid());
 	display_header_info(&g_env);
 	signal(SIGALRM, sig_handler);
 	signal(SIGINT, sig_handler);

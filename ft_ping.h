@@ -6,7 +6,7 @@
 /*   By: amathias </var/spool/mail/amathias>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/05 16:50:28 by amathias          #+#    #+#             */
-/*   Updated: 2017/11/10 11:49:15 by amathias         ###   ########.fr       */
+/*   Updated: 2017/11/10 16:27:51 by amathias         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ typedef struct				s_env
 	char					*hostname;
 	char					*ip;
 	int						socket;
+	uint16_t				pid_be;
 	struct addrinfo			*addr;
 	struct {
 		int					help;
