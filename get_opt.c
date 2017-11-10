@@ -6,7 +6,7 @@
 /*   By: amathias </var/spool/mail/amathias>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/06 10:21:03 by amathias          #+#    #+#             */
-/*   Updated: 2017/11/08 17:57:55 by amathias         ###   ########.fr       */
+/*   Updated: 2017/11/10 14:42:34 by amathias         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ void	get_opt(t_env *e, int argc, char **argv)
 								   next = 1;
 								   break;
 						default :
-							printf ("Bad switch %c, ignored.\n",*argv[i]);
+							printf ("unrecognized flag %c, ignored.\n",*argv[i]);
 					}
 					if (next)
 						break;
@@ -76,7 +76,13 @@ void	get_opt(t_env *e, int argc, char **argv)
 					i++;
 				break;
 			default:
-				e->hostname = ft_strdup(argv[i]);
+				if (e->hostname == NULL)
+					e->hostname = ft_strdup(argv[i]);
+				else
+				{
+					fprintf(stderr, "./ping <destination>\n");
+					exit(1);
+				}
 		}
 	}
 	if (e->hostname == NULL)

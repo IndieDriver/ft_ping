@@ -6,7 +6,7 @@
 /*   By: amathias </var/spool/mail/amathias>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/05 16:49:46 by amathias          #+#    #+#             */
-/*   Updated: 2017/11/10 11:45:07 by amathias         ###   ########.fr       */
+/*   Updated: 2017/11/10 15:13:55 by amathias         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,16 +28,13 @@ void	get_sockaddr(t_env *e, const char *addr)
 	hints.ai_next = NULL;
 	s = getaddrinfo(addr, NULL, &hints, &result);
 	if (s != 0) {
-		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(s));
+		fprintf(stderr, "error getaddrinfo\n");
 		exit(EXIT_FAILURE);
 	}
 	for (rp = result; rp != NULL; rp = rp->ai_next) {
 		sfd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
 		if (sfd == -1)
-		{
-			printf("invalid sfd\n");
 			continue;
-		}
 		close(sfd);
 		break ;
 	}
@@ -66,7 +63,7 @@ void	ping_connect(t_env *e)
 	}
 }
 
-void	ping_send(t_env *e, struct timeval *send_time, uint16_t sequence)
+void	ping_send(t_env *e, struct timeval *send_time, uint16_t sequence, int ttl)
 {
 	t_packet		packet;
 	int				res;
@@ -79,13 +76,20 @@ void	ping_send(t_env *e, struct timeval *send_time, uint16_t sequence)
 	for (int i = 0; i < 36; i++)
 		packet.data[i] = 10 + i;
 	packet.icmp.icmp_cksum = checksum((uint16_t*)&packet, sizeof(t_packet));
+	if (send_time != NULL)
+		gettimeofday (send_time, NULL);
+	res = setsockopt(e->socket, IPPROTO_IP, IP_TTL, &ttl, sizeof(ttl));
+	if (res == -1)
+	{
+		fprintf(stderr, "Invalid TTL %d\n", ttl);
+		exit(1);
+	}
 	res = sendto(e->socket, &packet, sizeof(t_packet), 0,
 			e->addr->ai_addr, e->addr->ai_addrlen);
 	e->sent++;
-	gettimeofday (send_time, NULL);
 }
 
-int		ping_receive(t_env *e, struct timeval send_time, uint16_t sequence)
+int		ping_receive(t_env *e, struct timeval send_time, int sequence)
 {
 	struct sockaddr_storage	sender;
 	struct timeval			received_time;
@@ -110,9 +114,20 @@ int		ping_receive(t_env *e, struct timeval send_time, uint16_t sequence)
 	msg_header.msg_flags = 0;
 	if (e->has_timeout)
 	{
-		e->has_timeout = 0;
-		alarm(0);
-		return (1);
+		if (e->flag.verbose)
+		{
+			ping_send(e, NULL, sequence, 1);
+			e->sent--;
+			alarm(1);
+			e->has_timeout = 0;
+			return (0);
+		}
+		else
+		{
+			e->has_timeout = 0;
+			alarm(0);
+			return (1);
+		}
 	}
 	if ((byte_recv = recvmsg(e->socket, &msg_header, MSG_DONTWAIT)))
 	{
@@ -140,7 +155,7 @@ int		ping_receive(t_env *e, struct timeval send_time, uint16_t sequence)
 			else
 			{
 				display_response(e, byte_recv - sizeof(struct iphdr),
-					sequence,
+					swap_byte16_t(received.icmp.icmp_seq),
 					received.ipheader.ttl,
 					time_elapsed);
 
@@ -178,7 +193,7 @@ void	ping_host(t_env *e)
 			break ;
 		}
 		sequence++;
-		ping_send(e, &send_time, (uint16_t)sequence);
+		ping_send(e, &send_time, (uint16_t)sequence, e->flag.ttl);
 		alarm(e->flag.timeout);
 		while (!ping_receive(e, send_time, sequence))
 			;
@@ -192,18 +207,17 @@ int main(int argc, char *argv[])
 	g_env.flag.ttl = 64;
 	g_env.flag.counter = -1;
 	g_env.flag.timeout = 1;
-	get_opt(&g_env, argc, argv);
 	if (getuid() != 0)
 	{
 		fprintf(stderr, "Command need to be run as root\n");
 		exit(1);
 	}
+	get_opt(&g_env, argc, argv);
 	get_sockaddr(&g_env, g_env.hostname);
 	display_header_info(&g_env);
 	signal(SIGALRM, sig_handler);
 	signal(SIGINT, sig_handler);
 	ping_host(&g_env);
 	display_footer(&g_env);
-	freeaddrinfo(g_env.addr);
 	return 0;
 }
