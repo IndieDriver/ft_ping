@@ -6,7 +6,7 @@
 /*   By: amathias </var/spool/mail/amathias>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/05 16:49:46 by amathias          #+#    #+#             */
-/*   Updated: 2017/11/10 10:33:44 by amathias         ###   ########.fr       */
+/*   Updated: 2017/11/10 11:13:53 by amathias         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,6 +136,7 @@ int		ping_receive(t_env *e, struct timeval send_time, uint16_t sequence)
 			{
 				display_response(e, byte_recv - sizeof(struct iphdr),
 					sequence,
+					received.ipheader.ttl,
 					time_elapsed);
 
 			}

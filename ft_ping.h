@@ -6,7 +6,7 @@
 /*   By: amathias </var/spool/mail/amathias>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/05 16:50:28 by amathias          #+#    #+#             */
-/*   Updated: 2017/11/09 16:01:34 by amathias         ###   ########.fr       */
+/*   Updated: 2017/11/10 10:48:12 by amathias         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,7 @@ void						get_opt(t_env *e, int argc, char **argv);
 
 void						display_header_info(t_env *env);
 void						display_response(t_env *e, int bytes_receive,
-								int seq, double duration);
+								int seq, int ttl, double duration);
 void						display_verbose(t_env *e, int bytes_receive,
 								int type, int code);
 void						display_timeout(int seq);

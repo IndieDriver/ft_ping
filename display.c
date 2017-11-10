@@ -6,7 +6,7 @@
 /*   By: amathias </var/spool/mail/amathias>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/06 14:44:37 by amathias          #+#    #+#             */
-/*   Updated: 2017/11/10 10:38:58 by amathias         ###   ########.fr       */
+/*   Updated: 2017/11/10 11:06:44 by amathias         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ void	display_header_info(t_env *e)
 			sizeof(t_rpacket) - sizeof(struct icmp), sizeof(t_rpacket));
 }
 
-void	display_response(t_env *e, int bytes_receive, int seq, double duration)
+void	display_response(t_env *e, int bytes_receive, int seq, int ttl, double duration)
 {
 	char ip[INET_ADDRSTRLEN];
 
@@ -33,7 +33,7 @@ void	display_response(t_env *e, int bytes_receive, int seq, double duration)
 		printf("%u bytes from %s", bytes_receive, ip);
 	else
 		printf("%u bytes from %s (%s)", bytes_receive, e->hostname, ip);
-	printf(": icmp_seq=%d ttl=%d time=%.3lf ms\n", seq, e->flag.ttl, duration);
+	printf(": icmp_seq=%d ttl=%d time=%.3lf ms\n", seq, ttl, duration);
 }
 
 void	display_verbose(t_env *e, int bytes_receive, int type, int code)
@@ -72,7 +72,8 @@ void	display_footer(t_env *e)
 
 	average = e->sent != 0 ? e->sum / e->sent : 0.0;
 	mdev = (e->sent - (average * average)) != 0
-		? sqrt(e->sum_square / (e->sent - (average * average))) : 0.0;
+		? e->sum_square / ((double)e->sent - (average * average)) : 0.0;
+	mdev = sqrt(fabs(mdev));
 	if (e->received > 0)
 		printf("rtt min/avg/max/mdev = %.3f/%.3f/%.3f/%.3f ms\n",
 				e->ping_min, average, e->ping_max, mdev);
