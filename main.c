@@ -6,7 +6,7 @@
 /*   By: amathias </var/spool/mail/amathias>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/05 16:49:46 by amathias          #+#    #+#             */
-/*   Updated: 2017/11/09 16:13:59 by amathias         ###   ########.fr       */
+/*   Updated: 2017/11/09 16:56:33 by amathias         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,8 +105,6 @@ int		ping_receive(t_env *e, struct timeval send_time, uint16_t sequence)
 	msg_header.msg_flags = 0;
 	if (e->has_timeout)
 	{
-		//if (e->flag.verbose)
-			//display_timeout(sequence);
 		e->has_timeout = 0;
 		alarm(0);
 		return (1);
@@ -115,13 +113,6 @@ int		ping_receive(t_env *e, struct timeval send_time, uint16_t sequence)
 	{
 		if (swap_byte16_t(received.icmp.icmp_id) == getpid() && received.icmp.icmp_type != (uint16_t)ICMP_ECHO)
 		{
-			/*
-			struct sockaddr_in *test = msg_header.msg_name;
-			char ip[INET_ADDRSTRLEN];
-
-			inet_ntop(test->sin_family,
-					&(test->sin_addr), ip, sizeof(ip));
-			printf("ip: %s\n", ip); */
 			if (!is_same_host(msg_header.msg_name, (struct sockaddr_in*)e->addr->ai_addr))
 				return (0);
 			e->received++;
