@@ -6,7 +6,7 @@
 /*   By: amathias </var/spool/mail/amathias>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/06 14:44:37 by amathias          #+#    #+#             */
-/*   Updated: 2017/11/09 14:42:01 by amathias         ###   ########.fr       */
+/*   Updated: 2017/11/10 10:38:58 by amathias         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,9 +70,9 @@ void	display_footer(t_env *e)
 			e->sent, e->received, lost,
 			get_time_elapsed(&e->start_time, &current_time));
 
-	average = e->sent != 0 ? e->sum / e->sent : 0;
+	average = e->sent != 0 ? e->sum / e->sent : 0.0;
 	mdev = (e->sent - (average * average)) != 0
-		? sqrtf(e->sum_square / (e->sent - (average * average))) : 0;
+		? sqrt(e->sum_square / (e->sent - (average * average))) : 0.0;
 	if (e->received > 0)
 		printf("rtt min/avg/max/mdev = %.3f/%.3f/%.3f/%.3f ms\n",
 				e->ping_min, average, e->ping_max, mdev);

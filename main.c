@@ -6,7 +6,7 @@
 /*   By: amathias </var/spool/mail/amathias>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/05 16:49:46 by amathias          #+#    #+#             */
-/*   Updated: 2017/11/09 16:56:33 by amathias         ###   ########.fr       */
+/*   Updated: 2017/11/10 10:33:44 by amathias         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,8 +111,10 @@ int		ping_receive(t_env *e, struct timeval send_time, uint16_t sequence)
 	}
 	if ((byte_recv = recvmsg(e->socket, &msg_header, MSG_DONTWAIT)))
 	{
-		if (swap_byte16_t(received.icmp.icmp_id) == getpid() && received.icmp.icmp_type != (uint16_t)ICMP_ECHO)
+		if (swap_byte16_t(received.icmp.icmp_id) == getpid())
 		{
+			if (received.icmp.icmp_type == ICMP_ECHO)
+				return (0);
 			if (!is_same_host(msg_header.msg_name, (struct sockaddr_in*)e->addr->ai_addr))
 				return (0);
 			e->received++;
