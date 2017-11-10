@@ -6,7 +6,7 @@
 /*   By: amathias </var/spool/mail/amathias>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/06 14:44:37 by amathias          #+#    #+#             */
-/*   Updated: 2017/11/10 11:48:57 by amathias         ###   ########.fr       */
+/*   Updated: 2017/11/10 16:55:13 by amathias         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,6 +71,8 @@ void	display_footer(t_env *e)
 	if (e->received > 0)
 		printf("rtt min/avg/max/mdev = %.3f/%.3f/%.3f/%.3f ms\n",
 				e->ping_min, average, e->ping_max, mdev);
+	else
+		printf("\n");
 
 	close(e->socket);
 	exit(0);
