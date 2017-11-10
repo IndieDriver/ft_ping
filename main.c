@@ -6,7 +6,7 @@
 /*   By: amathias </var/spool/mail/amathias>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/05 16:49:46 by amathias          #+#    #+#             */
-/*   Updated: 2017/11/10 16:33:40 by amathias         ###   ########.fr       */
+/*   Updated: 2017/11/10 17:04:35 by amathias         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ void	get_sockaddr(t_env *e, const char *addr)
 	hints.ai_next = NULL;
 	s = getaddrinfo(addr, NULL, &hints, &result);
 	if (s != 0) {
-		fprintf(stderr, "error getaddrinfo\n");
+		fprintf(stderr, "ping: unknow host %s\n", addr);
 		exit(EXIT_FAILURE);
 	}
 	for (rp = result; rp != NULL; rp = rp->ai_next) {
