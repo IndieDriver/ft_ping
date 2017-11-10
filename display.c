@@ -6,7 +6,7 @@
 /*   By: amathias </var/spool/mail/amathias>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/06 14:44:37 by amathias          #+#    #+#             */
-/*   Updated: 2017/11/10 11:06:44 by amathias         ###   ########.fr       */
+/*   Updated: 2017/11/10 11:48:57 by amathias         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,12 +47,6 @@ void	display_verbose(t_env *e, int bytes_receive, int type, int code)
 	else
 		printf("%u bytes from %s (%s)", bytes_receive, e->hostname, ip);
 	printf(": type=%d code=%d\n", type, code);
-}
-
-void	display_timeout(int seq)
-{
-	printf("Timeout (icmp_seq=%d)\n",
-			seq);
 }
 
 void	display_footer(t_env *e)

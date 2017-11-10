@@ -6,7 +6,7 @@
 /*   By: amathias </var/spool/mail/amathias>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/05 16:50:28 by amathias          #+#    #+#             */
-/*   Updated: 2017/11/10 10:48:12 by amathias         ###   ########.fr       */
+/*   Updated: 2017/11/10 11:49:15 by amathias         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,8 +31,6 @@
 
 # define MIN(a,b) (((a)<(b))?(a):(b))
 # define MAX(a,b) (((a)>(b))?(a):(b))
-# define XV(err,res,str) (x_void(err,res,str,__FILE__))
-# define X(err,res,str) (x_int(err,res,str,__FILE__))
 
 typedef struct				s_env
 {
@@ -75,10 +73,6 @@ t_env						g_env;
 
 uint16_t					checksum(uint16_t *data, int length);
 
-int							x_int(int err, int res, char *str, char *file);
-void						*x_void(void *err, void *res, char *str, char *file);
-void						hexdump(void *mem, unsigned int len);
-
 void						get_opt(t_env *e, int argc, char **argv);
 
 void						display_header_info(t_env *env);
@@ -86,7 +80,6 @@ void						display_response(t_env *e, int bytes_receive,
 								int seq, int ttl, double duration);
 void						display_verbose(t_env *e, int bytes_receive,
 								int type, int code);
-void						display_timeout(int seq);
 void						display_footer(t_env *env);
 
 void						ft_sleep(uint32_t sec);

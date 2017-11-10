@@ -6,7 +6,7 @@
 /*   By: amathias </var/spool/mail/amathias>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/11/05 16:49:46 by amathias          #+#    #+#             */
-/*   Updated: 2017/11/10 11:13:53 by amathias         ###   ########.fr       */
+/*   Updated: 2017/11/10 11:45:07 by amathias         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,12 @@ void	get_sockaddr(t_env *e, const char *addr)
 void	ping_connect(t_env *e)
 {
 	int res;
-	e->socket = X(-1, socket(PF_INET, SOCK_RAW, IPPROTO_ICMP), "socket");
+	e->socket = socket(PF_INET, SOCK_RAW, IPPROTO_ICMP);
+	if (e->socket == -1)
+	{
+		fprintf(stderr, "Connection failure\n");
+		exit(EXIT_FAILURE);
+	}
 	res = setsockopt(e->socket, IPPROTO_IP, IP_TTL, &e->flag.ttl,
 			sizeof(e->flag.ttl));
 	if (res == -1)
